@@ -1,0 +1,5 @@
+#! /bin/sh
+
+make && ./c_raycast.out &
+sleep 1
+i3-msg '[title="test"] floating enable'
