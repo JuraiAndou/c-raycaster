@@ -13,7 +13,13 @@ CC = g++
 COMPILER_FLAGS = -w
 
 #LINKER_FLAGS specifies the libraries we're linking against
-LINKER_FLAGS = -lGL -lGLU -lglut
+UNAME_S := $(shell uname -s)
+ifeq ($(UNAME_S),Linux)
+	LINKER_FLAGS = -lGL -lGLU -lglut
+endif
+ifeq ($(UNAME_S),Darwin)
+	LINKER_FLAGS = -framework OpenGL -framework GLUT
+endif
 
 #OBJ_NAME specifies the name of our exectuable
 OBJ_NAME = c_raycast
