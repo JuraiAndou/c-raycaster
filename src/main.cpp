@@ -108,58 +108,58 @@ void drawRays2D()
     /**
      * Check horizontal lines
      */
-    // ray.depth_of_field = 0;
-    // float aTan = -1 / tan(ray.angle); // negative inverse of tangent
+    ray.depth_of_field = 0;
+    float aTan = -1 / tan(ray.angle); // negative inverse of tangent
 
-    // // Looking up
-    // if (ray.angle > M_PI)
-    // {
-    //   ray.y = (((int)player.y_position >> 6) << 6) - 0.0001; // floor value
-    //   ray.x = (player.y_position - ray.y) * aTan + player.x_position;
-    //   ray.y_offset = -64;
-    //   ray.x_offset = -ray.y_offset * aTan;
-    // }
+    // Looking up
+    if (ray.angle > M_PI)
+    {
+      ray.y = (((int)player.y_position >> 6) << 6) - 0.0001; // floor value
+      ray.x = (player.y_position - ray.y) * aTan + player.x_position;
+      ray.y_offset = -64;
+      ray.x_offset = -ray.y_offset * aTan;
+    }
 
-    // // Looking down
-    // else if (ray.angle < M_PI)
-    // {
-    //   ray.y = (((int)player.y_position >> 6) << 6) + 64; // ceiling value
-    //   ray.x = (player.y_position - ray.y) * aTan + player.x_position;
-    //   ray.y_offset = 64;
-    //   ray.x_offset = -ray.y_offset * aTan;
-    // }
+    // Looking down
+    else if (ray.angle < M_PI)
+    {
+      ray.y = (((int)player.y_position >> 6) << 6) + 64; // ceiling value
+      ray.x = (player.y_position - ray.y) * aTan + player.x_position;
+      ray.y_offset = 64;
+      ray.x_offset = -ray.y_offset * aTan;
+    }
 
-    // // Looking straight left or right
-    // if (ray.angle == 0 || ray.angle == M_PI)
-    // {
-    //   ray.x = player.x_position;
-    //   ray.y = player.y_position;
-    //   ray.depth_of_field = 8;
-    // }
+    // Looking straight left or right
+    if (ray.angle == 0 || ray.angle == M_PI)
+    {
+      ray.x = player.x_position;
+      ray.y = player.y_position;
+      ray.depth_of_field = 8;
+    }
 
-    // while (ray.depth_of_field < 8)
-    // {
-    //   ray.mapHitX = (int)(ray.x) >> 6;                       // >> 6 is the same as / 64
-    //   ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
-    //   ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
+    while (ray.depth_of_field < 8)
+    {
+      ray.mapHitX = (int)(ray.x) >> 6;                       // >> 6 is the same as / 64
+      ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
+      ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-    //   if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
-    //   {
-    //     ray.depth_of_field = 8;
-    //   }
-    //   else
-    //   {
-    //     ray.x += ray.x_offset;
-    //     ray.y += ray.y_offset;
-    //     ray.depth_of_field += 1;
-    //   }
-    //   glColor3f(0, 1, 0);
-    //   glLineWidth(1);
-    //   glBegin(GL_LINES);
-    //   glVertex2i(player.x_position, player.y_position);
-    //   glVertex2i(ray.x, ray.y);
-    //   glEnd();
-    // }
+      if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+      {
+        ray.depth_of_field = 8;
+      }
+      else
+      {
+        ray.x += ray.x_offset;
+        ray.y += ray.y_offset;
+        ray.depth_of_field += 1;
+      }
+      glColor3f(0, 1, 0);
+      glLineWidth(10);
+      glBegin(GL_LINES);
+      glVertex2i(player.x_position, player.y_position);
+      glVertex2i(ray.x, ray.y);
+      glEnd();
+    }
 
     /**
      * Check vertical lines
