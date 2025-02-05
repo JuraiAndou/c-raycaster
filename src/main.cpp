@@ -252,16 +252,17 @@ void drawRays2D()
       ray.x = ray.vertical_x;
       ray.y = ray.vertical_y;
       ray.distance = ray.vertical_distance;
+      glColor3f(0.9, 0, 0);
     }
     if (ray.horizontal_distance < ray.vertical_distance)
     {
       ray.x = ray.horizontal_x;
       ray.y = ray.horizontal_y;
       ray.distance = ray.horizontal_distance;
+      glColor3f(0.7, 0, 0);
     }
 
     // Draw ray for debugging
-    glColor3f(1, 0, 0);
     glLineWidth(1);
     glBegin(GL_LINES);
     glVertex2i(player.x_position, player.y_position);
