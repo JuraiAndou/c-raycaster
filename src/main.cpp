@@ -4,6 +4,7 @@
 #define HEIGHT 512
 #define P2 M_PI / 2
 #define P3 3 * M_PI / 2
+#define DR 0.0174533 // on degrees to radians
 
 typedef struct Player
 {
@@ -30,6 +31,7 @@ typedef struct Ray
   float horizontal_x, horizontal_y;
   float vertical_distance;
   float vertical_x, vertical_y;
+  float distance;
 } Ray;
 
 Player player;
@@ -44,6 +46,7 @@ void drawPlayer()
   glEnd();
 
   // Draw player direction
+  glLineWidth(1);
   glBegin(GL_LINES);
   glVertex2i(player.x_position, player.y_position);
   glVertex2i(player.x_position + player.delta_x * 5,
@@ -107,9 +110,17 @@ float distance(float ax, float ay, float bx, float by, float angle)
 void drawRays2D()
 {
   Ray ray;
-  ray.angle = player.angle;
+  ray.angle = player.angle - DR * 30;
+  if (ray.angle < 0)
+  {
+    ray.angle += 2 * M_PI;
+  }
+  if (ray.angle > 2 * M_PI)
+  {
+    ray.angle -= 2 * M_PI;
+  }
 
-  for (ray.index = 0; ray.index < 1; ray.index++)
+  for (ray.index = 0; ray.index < 60; ray.index++)
   {
     /**
      * Check horizontal lines
@@ -240,18 +251,55 @@ void drawRays2D()
     {
       ray.x = ray.vertical_x;
       ray.y = ray.vertical_y;
+      ray.distance = ray.vertical_distance;
     }
     if (ray.horizontal_distance < ray.vertical_distance)
     {
       ray.x = ray.horizontal_x;
       ray.y = ray.horizontal_y;
+      ray.distance = ray.horizontal_distance;
     }
+
+    // Draw ray for debugging
     glColor3f(1, 0, 0);
     glLineWidth(1);
     glBegin(GL_LINES);
     glVertex2i(player.x_position, player.y_position);
     glVertex2i(ray.x, ray.y);
     glEnd();
+
+    // Draw 3D Walls
+    float correctedAngle = player.angle - ray.angle;
+    if (correctedAngle < 0)
+    {
+      correctedAngle += 2 * M_PI;
+    }
+    if (correctedAngle > 2 * M_PI)
+    {
+      correctedAngle -= 2 * M_PI;
+    }
+    ray.distance *= cos(correctedAngle);                     // correct for perspective
+    float wallHeight = (myMap.size * HEIGHT) / ray.distance; // line height
+    if (wallHeight > HEIGHT)                                 // draw full height wall
+      wallHeight = HEIGHT;
+    float wallOffset = (HEIGHT / 2) - wallHeight / 2; // line offset
+
+    glLineWidth(8);
+    glBegin(GL_LINES);
+    glVertex2i(ray.index * 8 + (WIDTH / 2) + 10, wallOffset);
+    glVertex2i(ray.index * 8 + (WIDTH / 2) + 10, wallOffset + wallHeight);
+    glEnd();
+
+    // Increment ray angle
+    ray.angle += DR;
+    if (ray.angle < 0)
+    {
+      ray.angle += 2 * M_PI;
+    }
+    if (ray.angle > 2 * M_PI)
+    {
+      ray.angle -= 2 * M_PI;
+    }
   }
 }
 void display()
