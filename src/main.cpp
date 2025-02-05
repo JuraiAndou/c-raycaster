@@ -2,6 +2,8 @@
 
 #define WIDTH 1024
 #define HEIGHT 512
+#define P2 M_PI / 2
+#define P3 3 * M_PI / 2
 
 typedef struct Player
 {
@@ -106,25 +108,81 @@ void drawRays2D()
     /**
      * Check horizontal lines
      */
-    ray.depth_of_field = 0;
-    float aTan = -1 / tan(ray.angle); // negative inverse of tangent
+    // ray.depth_of_field = 0;
+    // float aTan = -1 / tan(ray.angle); // negative inverse of tangent
 
-    // Looking up
-    if (ray.angle > M_PI)
+    // // Looking up
+    // if (ray.angle > M_PI)
+    // {
+    //   ray.y = (((int)player.y_position >> 6) << 6) - 0.0001; // floor value
+    //   ray.x = (player.y_position - ray.y) * aTan + player.x_position;
+    //   ray.y_offset = -64;
+    //   ray.x_offset = -ray.y_offset * aTan;
+    // }
+
+    // // Looking down
+    // else if (ray.angle < M_PI)
+    // {
+    //   ray.y = (((int)player.y_position >> 6) << 6) + 64; // ceiling value
+    //   ray.x = (player.y_position - ray.y) * aTan + player.x_position;
+    //   ray.y_offset = 64;
+    //   ray.x_offset = -ray.y_offset * aTan;
+    // }
+
+    // // Looking straight left or right
+    // if (ray.angle == 0 || ray.angle == M_PI)
+    // {
+    //   ray.x = player.x_position;
+    //   ray.y = player.y_position;
+    //   ray.depth_of_field = 8;
+    // }
+
+    // while (ray.depth_of_field < 8)
+    // {
+    //   ray.mapHitX = (int)(ray.x) >> 6;                       // >> 6 is the same as / 64
+    //   ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
+    //   ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
+
+    //   if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+    //   {
+    //     ray.depth_of_field = 8;
+    //   }
+    //   else
+    //   {
+    //     ray.x += ray.x_offset;
+    //     ray.y += ray.y_offset;
+    //     ray.depth_of_field += 1;
+    //   }
+    //   glColor3f(0, 1, 0);
+    //   glLineWidth(1);
+    //   glBegin(GL_LINES);
+    //   glVertex2i(player.x_position, player.y_position);
+    //   glVertex2i(ray.x, ray.y);
+    //   glEnd();
+    // }
+
+    /**
+     * Check vertical lines
+     */
+    ray.depth_of_field = 0;
+    float nTan = -tan(ray.angle); // negative inverse of tangent
+
+    // Looking left
+    if (ray.angle > P2 && ray.angle < P3)
     {
-      ray.y = (((int)player.y_position >> 6) << 6) - 0.0001; // floor value
-      ray.x = (player.y_position - ray.y) * aTan + player.x_position;
-      ray.y_offset = -64;
-      ray.x_offset = -ray.y_offset * aTan;
+      ray.x = (((int)player.x_position >> 6) << 6) - 0.0001; // floor value
+      ray.y = (player.x_position - ray.x) * nTan + player.y_position;
+      ray.x_offset = -64;
+      ray.y_offset = -ray.x_offset * nTan;
     }
 
-    // Looking down
-    else if (ray.angle < M_PI)
+    // Looking right
+    else if (ray.angle < P2 || ray.angle > P3)
     {
-      ray.y = (((int)player.y_position >> 6) << 6) + 64; // ceiling value
-      ray.x = (player.y_position - ray.y) * aTan + player.x_position;
-      ray.y_offset = 64;
-      ray.x_offset = -ray.y_offset * aTan;
+      ray.x = (((int)player.x_position >> 6) << 6) + 64; // ceiling value
+      ray.y = (player.x_position - ray.x) * nTan + player.y_position;
+      ray.x_offset = 64;
+      ray.y_offset = -ray.x_offset * nTan;
     }
 
     // Looking straight left or right
@@ -141,7 +199,7 @@ void drawRays2D()
       ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
       ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-      if (ray.mapPosition < ray.mapHitX * ray.mapHitY && mapArray[ray.mapPosition] == 1) // Hit a wall
+      if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
       {
         ray.depth_of_field = 8;
       }
@@ -151,7 +209,7 @@ void drawRays2D()
         ray.y += ray.y_offset;
         ray.depth_of_field += 1;
       }
-      glColor3f(0, 1, 0);
+      glColor3f(1, 0, 0);
       glLineWidth(1);
       glBegin(GL_LINES);
       glVertex2i(player.x_position, player.y_position);
