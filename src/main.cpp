@@ -20,15 +20,16 @@ typedef struct Player
 typedef struct Ray
 {
   int index;
-  int mapHitX;
-  int mapHitY;
+  int mapHitX, mapHitY;
   int mapPosition;
   int depth_of_field;
-  float x;
-  float y;
+  float x, y;
   float angle;
-  float x_offset;
-  float y_offset;
+  float x_offset, y_offset;
+  float horizontal_distance;
+  float horizontal_x, horizontal_y;
+  float vertical_distance;
+  float vertical_x, vertical_y;
 } Ray;
 
 Player player;
@@ -98,6 +99,11 @@ void drawMap2D()
   }
 }
 
+float distance(float ax, float ay, float bx, float by, float angle)
+{
+  return sqrt((bx - ax) * (bx - ax) + (by - ay) * (by - ay));
+}
+
 void drawRays2D()
 {
   Ray ray;
@@ -109,6 +115,9 @@ void drawRays2D()
      * Check horizontal lines
      */
     ray.depth_of_field = 0;
+    ray.horizontal_distance = 1000000;
+    ray.horizontal_x = player.x_position;
+    ray.horizontal_y = player.y_position;
     float aTan = -1 / tan(ray.angle); // negative inverse of tangent
 
     // Looking up
@@ -143,8 +152,18 @@ void drawRays2D()
       ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
       ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-      if (ray.mapPosition > 0 && ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+      if (ray.mapPosition > 0 &&
+          ray.mapPosition < myMap.x * myMap.y &&
+          mapArray[ray.mapPosition] == 1) // Hit a wall
       {
+        ray.horizontal_x = ray.x;
+        ray.horizontal_y = ray.y;
+        ray.horizontal_distance = distance(
+            player.x_position,
+            player.y_position,
+            ray.horizontal_x,
+            ray.horizontal_y,
+            ray.angle);
         ray.depth_of_field = 8;
       }
       else
@@ -153,18 +172,15 @@ void drawRays2D()
         ray.y += ray.y_offset;
         ray.depth_of_field += 1;
       }
-      glColor3f(0, 1, 0);
-      glLineWidth(10);
-      glBegin(GL_LINES);
-      glVertex2i(player.x_position, player.y_position);
-      glVertex2i(ray.x, ray.y);
-      glEnd();
     }
 
     /**
      * Check vertical lines
      */
     ray.depth_of_field = 0;
+    ray.vertical_distance = 1000000;
+    ray.vertical_x = player.x_position;
+    ray.vertical_y = player.y_position;
     float nTan = -tan(ray.angle); // negative inverse of tangent
 
     // Looking left
@@ -199,8 +215,18 @@ void drawRays2D()
       ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
       ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-      if (ray.mapPosition > 0 && ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+      if (ray.mapPosition > 0 &&
+          ray.mapPosition < myMap.x * myMap.y &&
+          mapArray[ray.mapPosition] == 1) // Hit a wall
       {
+        ray.vertical_x = ray.x;
+        ray.vertical_y = ray.y;
+        ray.vertical_distance = distance(
+            player.x_position,
+            player.y_position,
+            ray.vertical_x,
+            ray.vertical_y,
+            ray.angle);
         ray.depth_of_field = 8;
       }
       else
@@ -209,13 +235,23 @@ void drawRays2D()
         ray.y += ray.y_offset;
         ray.depth_of_field += 1;
       }
-      glColor3f(1, 0, 0);
-      glLineWidth(1);
-      glBegin(GL_LINES);
-      glVertex2i(player.x_position, player.y_position);
-      glVertex2i(ray.x, ray.y);
-      glEnd();
     }
+    if (ray.vertical_distance < ray.horizontal_distance)
+    {
+      ray.x = ray.vertical_x;
+      ray.y = ray.vertical_y;
+    }
+    if (ray.horizontal_distance < ray.vertical_distance)
+    {
+      ray.x = ray.horizontal_x;
+      ray.y = ray.horizontal_y;
+    }
+    glColor3f(1, 0, 0);
+    glLineWidth(1);
+    glBegin(GL_LINES);
+    glVertex2i(player.x_position, player.y_position);
+    glVertex2i(ray.x, ray.y);
+    glEnd();
   }
 }
 void display()
