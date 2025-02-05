@@ -143,7 +143,7 @@ void drawRays2D()
       ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
       ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-      if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+      if (ray.mapPosition > 0 && ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
       {
         ray.depth_of_field = 8;
       }
@@ -199,7 +199,7 @@ void drawRays2D()
       ray.mapHitY = (int)(ray.y) >> 6;                       // >> 6 is the same as / 64
       ray.mapPosition = ray.mapHitY * myMap.x + ray.mapHitX; // 1D array position
 
-      if (ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
+      if (ray.mapPosition > 0 && ray.mapPosition < myMap.x * myMap.y && mapArray[ray.mapPosition] == 1) // Hit a wall
       {
         ray.depth_of_field = 8;
       }
